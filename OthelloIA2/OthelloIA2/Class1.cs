@@ -27,8 +27,7 @@ namespace OthelloIA2
     {
         private const int BOARDSIZE = 8;
 
-        private tileState[,] board;     // X = Line     Y = Column
-        private int[,] myBoard;
+        public tileState[,] board;     // X = Line     Y = Column
         private List<Tuple<int, int>> canMove;
 
         // stopwatch to measure time of each player
@@ -42,7 +41,6 @@ namespace OthelloIA2
         public OthelloBoard()
         {
             board = new tileState[BOARDSIZE, BOARDSIZE];
-            myBoard = new int[BOARDSIZE, BOARDSIZE];
             canMove = new List<Tuple<int, int>>();
 
             offset1 = new TimeSpan(0);
@@ -71,6 +69,89 @@ namespace OthelloIA2
             possibleMoves(false);
         }
         #endregion
+
+        /*
+         * AI
+        */
+        public OthelloBoard(OthelloBoard b)
+        {
+            board = new tileState[BOARDSIZE, BOARDSIZE];
+            canMove = new List<Tuple<int, int>>();
+
+            offset1 = new TimeSpan(0);
+            offset2 = new TimeSpan(0);
+
+            watch1 = new Stopwatch();
+            watch2 = new Stopwatch();
+
+            board = b.board;
+            for (int i = 0; i < BOARDSIZE; i++)
+            {
+                for (int j = 0; j < BOARDSIZE; j++)
+                {
+                    board[i, j] =b.board[i, j];
+                }
+            }
+        }
+
+        private int eval()
+        {
+            int score = Math.Abs(GetBlackScore() - GetWhiteScore());
+            return score;
+        }
+
+        private Tuple<int, Tuple<int, int>> alphabeta(tileState[,] root , int depth , int minOrMax , int parentValue, bool whiteTurn)
+        {
+            // minOrMax = 1 : maximize
+            // minOrMax = -1 : minimize
+
+            OthelloBoard b = new OthelloBoard(this);
+            b.possibleMoves(whiteTurn);
+
+            if (depth == 0 || b.getCanMove().Count == 0)
+            {
+                return new Tuple<int, Tuple<int, int>>(b.eval(), new Tuple<int, int>(-1, -1));
+            }
+
+            int optVal = minOrMax;
+            optVal *= -10000;
+            Tuple<int, int> optOp = null;
+
+            foreach(Tuple<int, int>op in b.getCanMove())
+            {
+                OthelloBoard newBoard = new OthelloBoard(b);
+                newBoard.PlayMove(op.Item1, op.Item2, whiteTurn);
+
+                Tuple<int, Tuple<int, int>> dummy = alphabeta(newBoard.board, depth - 1, -minOrMax, optVal, !whiteTurn);
+
+                if(dummy.Item1 * minOrMax > optVal*minOrMax)
+                {
+                    optVal = dummy.Item1;
+                    optOp = op;
+
+                    if (optVal * minOrMax > parentValue * minOrMax)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return new Tuple<int, Tuple<int, int>>(optVal, optOp);
+        }
+
+        public Tuple<int, int> GetNextMove(int[,] game, int level, bool whiteTurn)
+        {
+            char[] colonnes = "ABCDEFGH".ToCharArray();
+            possibleMoves(whiteTurn);
+            if (canMove.Count == 0)
+                return new Tuple<int, int>(-1, -1);
+
+            // RETURN GOOD PLAY
+            int score = whiteTurn ?  GetWhiteScore() : GetBlackScore();
+            Tuple<int, Tuple<int, int>> result = alphabeta(board, level, 1, score, whiteTurn);
+            return result.Item2;
+        }
+
 
         /**
          *  Functions to return players elapsed time
@@ -146,22 +227,6 @@ namespace OthelloIA2
             }
         }
 
-        public Tuple<int, int> GetNextMove(int[,] game, int level, bool whiteTurn)
-        {
-            char[] colonnes = "ABCDEFGH".ToCharArray();
-            possibleMoves(whiteTurn);
-            if (canMove.Count == 0)
-                return new Tuple<int, int>(-1, -1);
-
-            // RETURN GOOD PLAY
-            return canMove.First();
-/*            List<Tuple<char, int>> possibleMoves = GetPossibleMoves(whiteTurn);
-            if (possibleMoves.Count == 0)
-                return new Tuple<char, int>('P', 0);
-            else
-                return possibleMoves[rnd.Next(possibleMoves.Count)];
-  */      }
-
         public int GetBlackScore()
         {
             return calculateScore(tileState.BLACK);
@@ -174,6 +239,7 @@ namespace OthelloIA2
 
         public int[,] GetBoard()
         {
+            int[,] myBoard = new int[BOARDSIZE, BOARDSIZE];
             for (int i=0; i< BOARDSIZE; i++)
             {
                 for (int j=0; j< BOARDSIZE; j++)

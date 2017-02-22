@@ -148,7 +148,7 @@ namespace ConsoleTestDLLOthello
                 }
                 Console.Write(whitePlays ? "\n[O]" : "\n[X]");
                 // check move validity
-                if ((playerMove.Item1 == PASS) && (playerMove.Item1 == PASS))
+                if ((playerMove.Item1 == PASS) && (playerMove.Item2 == PASS))
                 {
                     Console.WriteLine("PASS");
                     passCount++;
