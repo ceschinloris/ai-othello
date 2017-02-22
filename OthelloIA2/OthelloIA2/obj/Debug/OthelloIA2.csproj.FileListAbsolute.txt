@@ -1,0 +1,13 @@
+C:\Temp\_DOTNET\OthelloIA2\OthelloIA2\bin\Debug\OthelloIA2.dll
+C:\Temp\_DOTNET\OthelloIA2\OthelloIA2\bin\Debug\OthelloIA2.pdb
+C:\Temp\_DOTNET\OthelloIA2\OthelloIA2\obj\Debug\OthelloIA2.dll
+C:\Temp\_DOTNET\OthelloIA2\OthelloIA2\obj\Debug\OthelloIA2.pdb
+C:\Temp\_DOTNET\OthelloIA2\OthelloIA2\bin\Debug\IPlayable.dll
+C:\Temp\_DOTNET\OthelloIA2\OthelloIA2\bin\Debug\IPlayable.pdb
+C:\Temp\DOTNET_OTHELLO\OthelloIA2\OthelloIA2\bin\Debug\OthelloIA2.dll
+C:\Temp\DOTNET_OTHELLO\OthelloIA2\OthelloIA2\bin\Debug\OthelloIA2.pdb
+C:\Temp\DOTNET_OTHELLO\OthelloIA2\OthelloIA2\bin\Debug\IPlayable.dll
+C:\Temp\DOTNET_OTHELLO\OthelloIA2\OthelloIA2\bin\Debug\IPlayable.pdb
+C:\Temp\DOTNET_OTHELLO\OthelloIA2\OthelloIA2\obj\Debug\OthelloIA2.dll
+C:\Temp\DOTNET_OTHELLO\OthelloIA2\OthelloIA2\obj\Debug\OthelloIA2.pdb
+C:\Temp\DOTNET_OTHELLO\OthelloIA2\OthelloIA2\obj\Debug\OthelloIA2.csprojResolveAssemblyReference.cache

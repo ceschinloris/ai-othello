@@ -1,0 +1,12 @@
+C:\Temp\_DOTNET\ClassLibrary1\ClassLibrary1\bin\Debug\ClassLibrary1.dll
+C:\Temp\_DOTNET\ClassLibrary1\ClassLibrary1\bin\Debug\ClassLibrary1.pdb
+C:\Temp\_DOTNET\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.dll
+C:\Temp\_DOTNET\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.pdb
+C:\Temp\_DOTNET\ClassLibrary1\ClassLibrary1\bin\Debug\IPlayable.dll
+C:\Temp\_DOTNET\ClassLibrary1\ClassLibrary1\bin\Debug\IPlayable.pdb
+C:\Temp\_DOTNET\TEST_OTHELLO\ClassLibrary1\obj\Debug\ClassLibrary1.dll
+C:\Temp\_DOTNET\TEST_OTHELLO\ClassLibrary1\obj\Debug\ClassLibrary1.pdb
+C:\Temp\_DOTNET\TEST_OTHELLO\ClassLibrary1\bin\Debug\ClassLibrary1.dll
+C:\Temp\_DOTNET\TEST_OTHELLO\ClassLibrary1\bin\Debug\ClassLibrary1.pdb
+C:\Temp\_DOTNET\TEST_OTHELLO\ClassLibrary1\bin\Debug\IPlayable.dll
+C:\Temp\_DOTNET\TEST_OTHELLO\ClassLibrary1\bin\Debug\IPlayable.pdb

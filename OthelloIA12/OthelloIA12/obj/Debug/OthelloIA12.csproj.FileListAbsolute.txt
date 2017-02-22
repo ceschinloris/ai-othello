@@ -1,0 +1,6 @@
+C:\Temp\DOTNET_OTHELLO\OthelloIA12\OthelloIA12\bin\Debug\OthelloIA12.dll
+C:\Temp\DOTNET_OTHELLO\OthelloIA12\OthelloIA12\bin\Debug\OthelloIA12.pdb
+C:\Temp\DOTNET_OTHELLO\OthelloIA12\OthelloIA12\bin\Debug\IPlayable.dll
+C:\Temp\DOTNET_OTHELLO\OthelloIA12\OthelloIA12\bin\Debug\IPlayable.pdb
+C:\Temp\DOTNET_OTHELLO\OthelloIA12\OthelloIA12\obj\Debug\OthelloIA12.dll
+C:\Temp\DOTNET_OTHELLO\OthelloIA12\OthelloIA12\obj\Debug\OthelloIA12.pdb
