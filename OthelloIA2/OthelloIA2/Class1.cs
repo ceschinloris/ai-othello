@@ -73,7 +73,7 @@ namespace OthelloIA2
         /*
          * AI
         */
-        public OthelloBoard(OthelloBoard b)
+        public OthelloBoard(int[,] b)
         {
             board = new tileState[BOARDSIZE, BOARDSIZE];
             canMove = new List<Tuple<int, int>>();
@@ -83,15 +83,49 @@ namespace OthelloIA2
 
             watch1 = new Stopwatch();
             watch2 = new Stopwatch();
-
-            board = b.board;
+            
             for (int i = 0; i < BOARDSIZE; i++)
             {
                 for (int j = 0; j < BOARDSIZE; j++)
                 {
-                    board[i, j] =b.board[i, j];
+                    if(b[i,j] == -1)
+                    {
+                        board[i, j] = tileState.EMPTY;
+                    }
+                    else if(b[i,j] == 0)
+                    {
+                        board[i, j] = tileState.WHITE;
+                    }
+                    else if(b[i,j] == 1)
+                    {
+                        board[i, j] = tileState.BLACK;
+                    }
                 }
             }
+        }
+
+        public int[,] getBoardInt()
+        {
+            int[,] intBoard = new int[BOARDSIZE, BOARDSIZE];
+            for (int i = 0; i < BOARDSIZE; i++)
+            {
+                for (int j = 0; j < BOARDSIZE; j++)
+                {
+                    if (board[i, j] == tileState.EMPTY)
+                    {
+                        intBoard[i, j] = -1;
+                    }
+                    else if (board[i, j] == tileState.WHITE)
+                    {
+                        intBoard[i, j] = 0;
+                    }
+                    else if (board[i, j] == tileState.BLACK)
+                    {
+                        intBoard[i, j] = 1;
+                    }
+                }
+            }
+            return intBoard;
         }
 
         private int eval()
@@ -100,12 +134,12 @@ namespace OthelloIA2
             return score;
         }
 
-        private Tuple<int, Tuple<int, int>> alphabeta(tileState[,] root , int depth , int minOrMax , int parentValue, bool whiteTurn)
+        private Tuple<int, Tuple<int, int>> alphabeta(int[,] root , int depth , int minOrMax , int parentValue, bool whiteTurn)
         {
             // minOrMax = 1 : maximize
             // minOrMax = -1 : minimize
 
-            OthelloBoard b = new OthelloBoard(this);
+            OthelloBoard b = new OthelloBoard(root);
             b.possibleMoves(whiteTurn);
 
             if (depth == 0 || b.getCanMove().Count == 0)
@@ -117,12 +151,12 @@ namespace OthelloIA2
             optVal *= -10000;
             Tuple<int, int> optOp = null;
 
-            foreach(Tuple<int, int>op in b.getCanMove())
+            foreach(Tuple<int, int>op in getCanMove())
             {
-                OthelloBoard newBoard = new OthelloBoard(b);
+                OthelloBoard newBoard = new OthelloBoard(b.getBoardInt());
                 newBoard.PlayMove(op.Item1, op.Item2, whiteTurn);
 
-                Tuple<int, Tuple<int, int>> dummy = alphabeta(newBoard.board, depth - 1, -minOrMax, optVal, !whiteTurn);
+                Tuple<int, Tuple<int, int>> dummy = alphabeta(newBoard.getBoardInt(), depth - 1, -minOrMax, optVal, !whiteTurn);
 
                 if(dummy.Item1 * minOrMax > optVal*minOrMax)
                 {
@@ -141,17 +175,19 @@ namespace OthelloIA2
 
         public Tuple<int, int> GetNextMove(int[,] game, int level, bool whiteTurn)
         {
-            char[] colonnes = "ABCDEFGH".ToCharArray();
             possibleMoves(whiteTurn);
             if (canMove.Count == 0)
                 return new Tuple<int, int>(-1, -1);
 
             // RETURN GOOD PLAY
             int score = whiteTurn ?  GetWhiteScore() : GetBlackScore();
-            Tuple<int, Tuple<int, int>> result = alphabeta(board, level, 1, score, whiteTurn);
-            return result.Item2;
+            Tuple<int, Tuple<int, int>> result = alphabeta(game, 5, 1, score, whiteTurn);
+            return new Tuple<int, int>(result.Item2.Item1, result.Item2.Item2);
         }
 
+        /**
+         *  END AI 
+         */
 
         /**
          *  Functions to return players elapsed time
