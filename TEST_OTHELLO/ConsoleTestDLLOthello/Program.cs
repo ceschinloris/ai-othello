@@ -191,6 +191,7 @@ namespace ConsoleTestDLLOthello
                 activePlayer = (activePlayer == player1) ? player2 : player1;
                 
                 System.Threading.Thread.Sleep(200); // slow down game speed or //Console.ReadKey();
+                Console.ReadKey();
             } // end of GAMELOOP
             #endregion
 

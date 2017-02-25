@@ -94,25 +94,57 @@
             }
         }
 
-        private int eval(bool whiteTurn)
+        private double eval(bool whiteTurn)
         {
-            //TODO
-            int score = whiteTurn ? GetWhiteScore() : GetBlackScore();
-            score = Math.Abs(GetWhiteScore() - GetBlackScore());
-            return score;
+            // score
+            double score = whiteTurn ? GetWhiteScore() : GetBlackScore();
+
+            // mobility
+            possibleMoves(whiteTurn);
+            double mobility = canMove.Count;
+
+
+            //positions
+            double positionScore = 0;
+            tileState myColor = whiteTurn ? tileState.WHITE : tileState.BLACK;
+            int[,] weights = new int[,]{
+                { 20, -3, 11, 08, 08, 11, -3, 20 },
+                { -3, -7, -4, 01, 01, -4, -7, -3 },
+                { 11, -4, 02, 02, 02, 02, -4, 11 },
+                { 08, 01, 02, -3, -3, 02, 01, 08 },
+                { 08, 01, 02, -3, -3, 02, 01, 08 },
+                { 11, -4, 02, 02, 02, 02, -4, 11 },
+                { -3, -7, -4, 01, 01, -4, -7, -3 },
+                { 20, -3, 11, 08, 08, 11, -3, 20 }
+            };
+            for(int i = 0; i < BOARDSIZE; i++)
+            {
+                for(int j = 0; j < BOARDSIZE; j++)
+                {
+                    if (board[i, j] == myColor)
+                        positionScore += weights[i, j];
+                }
+            }
+          
+            //stability
+
+
+            // return
+            return (10 * score) + (100 * mobility) + (100 * positionScore);
         }
 
-        private Tuple<int, Tuple<int, int>> alphabeta(int[,] root , int depth , int minOrMax , int parentValue, bool whiteTurn)
+        private Tuple<double, Tuple<int, int>> alphabeta(int[,] root , int depth , int minOrMax , double parentValue, bool whiteTurn)
         {
             // minOrMax = 1 : maximize
             // minOrMax = -1 : minimize
 
             setBoard(root);
+            possibleMoves(whiteTurn);
 
             if (depth == 0 || canMove.Count == 0)
-                return new Tuple<int, Tuple<int, int>>(eval(whiteTurn), new Tuple<int, int>(-1, -1));
+                return new Tuple<double, Tuple<int, int>>(eval(whiteTurn), new Tuple<int, int>(-1, -1));
 
-            int optVal = minOrMax * (-10000000);
+            double optVal = minOrMax * (-10000000);
             Tuple<int, int> optOp = null;
 
             List<Tuple<int, int>> moves = canMove.ToList();
@@ -121,7 +153,7 @@
                 OthelloBoard newBoard = new OthelloBoard(root);
                 // PLAYMOVE OP
                 newBoard.PlayMove(op.Item1, op.Item2, whiteTurn);
-                Tuple<int, Tuple<int, int>> result = newBoard.alphabeta(newBoard.GetBoard(), depth - 1, -minOrMax, optVal, !whiteTurn);
+                Tuple<double, Tuple<int, int>> result = newBoard.alphabeta(newBoard.GetBoard(), depth - 1, -minOrMax, optVal, !whiteTurn);
 
                 if (result.Item1 * minOrMax > optVal * minOrMax)
                 {
@@ -134,16 +166,14 @@
                     }
                 }
             }
-            return new Tuple<int, Tuple<int, int>>(optVal, optOp);       
+            return new Tuple<double, Tuple<int, int>>(optVal, optOp);       
         }
 
         public Tuple<int, int> GetNextMove(int[,] game, int level, bool whiteTurn)
         {
             setBoard(game);
-
-            // RETURN GOOD PLAY
-            int score = eval(whiteTurn);
-            Tuple<int, Tuple<int, int>> result = alphabeta(game, level, 1, score, whiteTurn);
+            double score = eval(whiteTurn);
+            Tuple<double, Tuple<int, int>> result = alphabeta(game, level, 1, score, whiteTurn);
             return result.Item2;
         }
 
