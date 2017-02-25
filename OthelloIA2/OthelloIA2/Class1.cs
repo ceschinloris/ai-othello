@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OthelloIA2
+﻿namespace OthelloIA2
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Runtime.Serialization;
-    using System.Text;
-    using System.Threading.Tasks;
 
     // Tile states
     public enum tileState
@@ -21,9 +12,8 @@ namespace OthelloIA2
         BLACK,
         EMPTY
     }
-
-    [Serializable]
-    public class OthelloBoard : IPlayable.IPlayable, ISerializable
+    
+    public class OthelloBoard : IPlayable.IPlayable
     {
         private const int BOARDSIZE = 8;
 
@@ -104,33 +94,11 @@ namespace OthelloIA2
             }
         }
 
-        public int[,] getBoardInt()
+        private int eval(bool whiteTurn)
         {
-            int[,] intBoard = new int[BOARDSIZE, BOARDSIZE];
-            for (int i = 0; i < BOARDSIZE; i++)
-            {
-                for (int j = 0; j < BOARDSIZE; j++)
-                {
-                    if (board[i, j] == tileState.EMPTY)
-                    {
-                        intBoard[i, j] = -1;
-                    }
-                    else if (board[i, j] == tileState.WHITE)
-                    {
-                        intBoard[i, j] = 0;
-                    }
-                    else if (board[i, j] == tileState.BLACK)
-                    {
-                        intBoard[i, j] = 1;
-                    }
-                }
-            }
-            return intBoard;
-        }
-
-        private int eval()
-        {
-            int score = Math.Abs(GetBlackScore() - GetWhiteScore());
+            //TODO
+            int score = whiteTurn ? GetWhiteScore() : GetBlackScore();
+            score = Math.Abs(GetWhiteScore() - GetBlackScore());
             return score;
         }
 
@@ -139,28 +107,25 @@ namespace OthelloIA2
             // minOrMax = 1 : maximize
             // minOrMax = -1 : minimize
 
-            OthelloBoard b = new OthelloBoard(root);
-            b.possibleMoves(whiteTurn);
+            setBoard(root);
 
-            if (depth == 0 || b.getCanMove().Count == 0)
-            {
-                return new Tuple<int, Tuple<int, int>>(b.eval(), new Tuple<int, int>(-1, -1));
-            }
+            if (depth == 0 || canMove.Count == 0)
+                return new Tuple<int, Tuple<int, int>>(eval(whiteTurn), new Tuple<int, int>(-1, -1));
 
-            int optVal = minOrMax;
-            optVal *= -10000;
+            int optVal = minOrMax * (-10000000);
             Tuple<int, int> optOp = null;
 
-            foreach(Tuple<int, int>op in getCanMove())
+            List<Tuple<int, int>> moves = canMove.ToList();
+            foreach (Tuple<int,int> op in moves)
             {
-                OthelloBoard newBoard = new OthelloBoard(b.getBoardInt());
+                OthelloBoard newBoard = new OthelloBoard(root);
+                // PLAYMOVE OP
                 newBoard.PlayMove(op.Item1, op.Item2, whiteTurn);
+                Tuple<int, Tuple<int, int>> result = newBoard.alphabeta(newBoard.GetBoard(), depth - 1, -minOrMax, optVal, !whiteTurn);
 
-                Tuple<int, Tuple<int, int>> dummy = alphabeta(newBoard.getBoardInt(), depth - 1, -minOrMax, optVal, !whiteTurn);
-
-                if(dummy.Item1 * minOrMax > optVal*minOrMax)
+                if (result.Item1 * minOrMax > optVal * minOrMax)
                 {
-                    optVal = dummy.Item1;
+                    optVal = result.Item1;
                     optOp = op;
 
                     if (optVal * minOrMax > parentValue * minOrMax)
@@ -169,20 +134,17 @@ namespace OthelloIA2
                     }
                 }
             }
-
-            return new Tuple<int, Tuple<int, int>>(optVal, optOp);
+            return new Tuple<int, Tuple<int, int>>(optVal, optOp);       
         }
 
         public Tuple<int, int> GetNextMove(int[,] game, int level, bool whiteTurn)
         {
-            possibleMoves(whiteTurn);
-            if (canMove.Count == 0)
-                return new Tuple<int, int>(-1, -1);
+            setBoard(game);
 
             // RETURN GOOD PLAY
-            int score = whiteTurn ?  GetWhiteScore() : GetBlackScore();
-            Tuple<int, Tuple<int, int>> result = alphabeta(game, 5, 1, score, whiteTurn);
-            return new Tuple<int, int>(result.Item2.Item1, result.Item2.Item2);
+            int score = eval(whiteTurn);
+            Tuple<int, Tuple<int, int>> result = alphabeta(game, level, 1, score, whiteTurn);
+            return result.Item2;
         }
 
         /**
@@ -292,31 +254,6 @@ namespace OthelloIA2
         }
 
         #endregion
-
-        /*-------------------------------------------------------
-         * ISerializable functions
-         -------------------------------------------------------- */
-        // Deserialize
-        public OthelloBoard(SerializationInfo info, StreamingContext context)
-        {
-            board = (tileState[,])info.GetValue("board", typeof(tileState[,]));
-            offset1 = (TimeSpan)info.GetValue("time1", typeof(TimeSpan));
-            watch1 = new Stopwatch();
-            offset2 = (TimeSpan)info.GetValue("time2", typeof(TimeSpan));
-            watch2 = new Stopwatch();
-
-            canMove = new List<Tuple<int, int>>();
-
-        }
-
-        // Serialize
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("board", board, typeof(tileState[,]));
-            info.AddValue("time1", elapsedWatch1(), typeof(TimeSpan));
-            info.AddValue("time2", elapsedWatch2(), typeof(TimeSpan));
-        }
-
 
         /*-------------------------------------------------------
          * Class functions
@@ -945,6 +882,21 @@ namespace OthelloIA2
             return canMove;
         }
 
+        public void setBoard(int[,] b)
+        {
+            for (int i = 0; i < BOARDSIZE; i++)
+            {
+                for (int j = 0; j < BOARDSIZE; j++)
+                {
+                    if (b[i, j] == 1)
+                        board[i, j] = tileState.BLACK;
+                    else if (b[i, j] == 0)
+                        board[i, j] = tileState.WHITE;
+                    else
+                        board[i, j] = tileState.EMPTY;
+                }
+            }
+        }
     }
 
 
