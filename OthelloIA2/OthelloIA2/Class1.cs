@@ -96,17 +96,21 @@
 
         private double eval(bool whiteTurn)
         {
-            // score
-            double score = whiteTurn ? GetWhiteScore() : GetBlackScore();
+            // Piece difference, frontier disks and disk squares
+            double p = 0;
+            double f = 0;
 
-            // mobility
-            possibleMoves(whiteTurn);
-            double mobility = canMove.Count;
+            int positionScore = 0;
+            int myTiles = 0;
+            int oppTiles = 0;
+            int myFrontTiles = 0;
+            int oppFrontTiles = 0;
 
+            int x;
+            int y;
 
-            //positions
-            double positionScore = 0;
             tileState myColor = whiteTurn ? tileState.WHITE : tileState.BLACK;
+            tileState oppColor = !whiteTurn ? tileState.WHITE : tileState.BLACK;
             int[,] weights = new int[,]{
                 { 20, -3, 11, 08, 08, 11, -3, 20 },
                 { -3, -7, -4, 01, 01, -4, -7, -3 },
@@ -117,20 +121,179 @@
                 { -3, -7, -4, 01, 01, -4, -7, -3 },
                 { 20, -3, 11, 08, 08, 11, -3, 20 }
             };
-            for(int i = 0; i < BOARDSIZE; i++)
+            int[] X1 = { -1, -1, 0, 1, 1, 1, 0, -1 };
+            int[] Y1 = { 0, 1, 1, 1, 0, -1, -1, -1 };
+
+
+            for (int i = 0; i < BOARDSIZE; i++)
             {
-                for(int j = 0; j < BOARDSIZE; j++)
+                for (int j = 0; j < BOARDSIZE; j++)
                 {
                     if (board[i, j] == myColor)
+                    {
+                        myTiles++;
                         positionScore += weights[i, j];
+                    }
+                    else if(board[i,j] == oppColor)
+                    {
+                        oppTiles++;
+                        positionScore -= weights[i, j];
+                    }
+
+                    if(board[i,j] != tileState.EMPTY)
+                    {
+                        for(int k = 0; k < 8; k++)
+                        {
+                            x = i + X1[k];
+                            y = j + Y1[k];
+                            if(x >= 0 && x < BOARDSIZE && y >= 0 && y < BOARDSIZE && board[x,y] == tileState.EMPTY)
+                            {
+                                if (board[i, j] == myColor)
+                                    myFrontTiles++;
+                                else
+                                    oppFrontTiles++;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
-          
-            //stability
+
+            if (myTiles > oppTiles)
+                p = (100.0 * myTiles) / (myTiles + oppTiles);
+            else if (myTiles < oppTiles)
+                p = -(100.0 * oppTiles) / (myTiles + oppTiles);
+            else
+                p = 0;
+
+            if (myFrontTiles > oppFrontTiles)
+                f = -(100.0 * myFrontTiles) / (myFrontTiles + oppFrontTiles);
+            else if (myFrontTiles < oppFrontTiles)
+                f = (100.0 * oppFrontTiles) / (myFrontTiles + oppFrontTiles);
+            else
+                f = 0;
+
+            // Corner occupancy
+            double c = 0;
+
+            myTiles = 0;
+            oppTiles = 0;
+            if (board[0, 0] == myColor)
+                myTiles++;
+            else if (board[0, 0] == oppColor)
+                oppTiles++;
+            if (board[0, 7] == myColor)
+                myTiles++;
+            else if (board[0, 7] == oppColor)
+                oppTiles++;
+            if (board[7, 0] == myColor)
+                myTiles++;
+            else if (board[7, 0] == oppColor)
+                oppTiles++;
+            if (board[7, 7] == myColor)
+                myTiles++;
+            else if (board[7, 7] == oppColor)
+                oppTiles++;
+
+            c = 25 * (myTiles - oppTiles);
+
+            // Corner closeness
+            double l = 0;
+
+            myTiles = 0;
+            oppTiles = 0;
+
+            if (board[0, 0] == tileState.EMPTY)
+            {
+                if (board[0, 1] == myColor)
+                    myTiles++;
+                else if (board[0, 1] == oppColor)
+                    oppTiles++;
+
+                if (board[1, 1] == myColor)
+                    myTiles++;
+                else if (board[1, 1] == oppColor)
+                    oppTiles++;
+
+                if (board[1, 0] == myColor)
+                    myTiles++;
+                else if (board[1, 0] == oppColor)
+                    oppTiles++;
+            }
+
+            if (board[0, 7] == tileState.EMPTY)
+            {
+                if (board[0, 6] == myColor)
+                    myTiles++;
+                else if (board[0, 6] == oppColor)
+                    oppTiles++;
+
+                if (board[1, 6] == myColor)
+                    myTiles++;
+                else if (board[1, 6] == oppColor)
+                    oppTiles++;
+
+                if (board[6, 0] == myColor)
+                    myTiles++;
+                else if (board[6, 0] == oppColor)
+                    oppTiles++;
+            }
+
+            if (board[7, 0] == tileState.EMPTY)
+            {
+                if (board[7, 1] == myColor)
+                    myTiles++;
+                else if (board[7, 1] == oppColor)
+                    oppTiles++;
+
+                if (board[6, 1] == myColor)
+                    myTiles++;
+                else if (board[6, 1] == oppColor)
+                    oppTiles++;
+
+                if (board[6, 0] == myColor)
+                    myTiles++;
+                else if (board[6, 0] == oppColor)
+                    oppTiles++;
+            }
+
+            if (board[7, 7] == tileState.EMPTY)
+            {
+                if (board[6, 7] == myColor)
+                    myTiles++;
+                else if (board[6, 7] == oppColor)
+                    oppTiles++;
+
+                if (board[6, 6] == myColor)
+                    myTiles++;
+                else if (board[6, 6] == oppColor)
+                    oppTiles++;
+
+                if (board[7, 6] == myColor)
+                    myTiles++;
+                else if (board[7, 6] == oppColor)
+                    oppTiles++;
+            }
+            l = -12.5 * (myTiles - oppTiles);
+
+            // Mobility
+            double m = 0;
+
+            possibleMoves(whiteTurn);
+            myTiles = canMove.Count;
+            possibleMoves(!whiteTurn);
+            oppTiles = canMove.Count;
+
+            if (myTiles > oppTiles)
+                m = (100.0 * myTiles) / (myTiles + oppTiles);
+            else if (myTiles < oppTiles)
+                m = -(100.0 * oppTiles) / (myTiles + oppTiles);
+            else
+                m = 0;
 
 
-            // return
-            return (10 * score) + (100 * mobility) + (100 * positionScore);
+            //Result
+            return (10 * p) + (801.724 * c) + (382.026 * l) + (78.922 * m) + (74.396 * f) + (10 * positionScore);
         }
 
         private Tuple<double, Tuple<int, int>> alphabeta(int[,] root , int depth , int minOrMax , double parentValue, bool whiteTurn)
@@ -151,7 +314,7 @@
             foreach (Tuple<int,int> op in moves)
             {
                 OthelloBoard newBoard = new OthelloBoard(root);
-                // PLAYMOVE OP
+
                 newBoard.PlayMove(op.Item1, op.Item2, whiteTurn);
                 Tuple<double, Tuple<int, int>> result = newBoard.alphabeta(newBoard.GetBoard(), depth - 1, -minOrMax, optVal, !whiteTurn);
 
