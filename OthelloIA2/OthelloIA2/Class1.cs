@@ -27,6 +27,34 @@
         private Stopwatch watch1;
         private Stopwatch watch2;
 
+        //eval variables
+        // Piece difference, frontier disks and disk squares
+        double p;
+        double f;
+
+        int positionScore;
+        int myTiles;
+        int oppTiles;
+        int myFrontTiles;
+        int oppFrontTiles;
+
+        int x;
+        int y;
+
+        int[,] weights = new int[,]{
+                { 20, -3, 11, 08, 08, 11, -3, 20 },
+                { -3, -7, -4, 01, 01, -4, -7, -3 },
+                { 11, -4, 02, 02, 02, 02, -4, 11 },
+                { 08, 01, 02, -3, -3, 02, 01, 08 },
+                { 08, 01, 02, -3, -3, 02, 01, 08 },
+                { 11, -4, 02, 02, 02, 02, -4, 11 },
+                { -3, -7, -4, 01, 01, -4, -7, -3 },
+                { 20, -3, 11, 08, 08, 11, -3, 20 }
+            };
+
+        int[] X1 = { -1, -1, 0, 1, 1, 1, 0, -1 };
+        int[] Y1 = { 0, 1, 1, 1, 0, -1, -1, -1 };
+
         #region CONSTRUCTOR
         public OthelloBoard()
         {
@@ -96,34 +124,17 @@
 
         private double eval(bool whiteTurn)
         {
-            // Piece difference, frontier disks and disk squares
-            double p = 0;
-            double f = 0;
+            p = 0;
+            f = 0;
 
-            int positionScore = 0;
-            int myTiles = 0;
-            int oppTiles = 0;
-            int myFrontTiles = 0;
-            int oppFrontTiles = 0;
-
-            int x;
-            int y;
+            positionScore = 0;
+            myTiles = 0;
+            oppTiles = 0;
+            myFrontTiles = 0;
+            oppFrontTiles = 0;
 
             tileState myColor = whiteTurn ? tileState.WHITE : tileState.BLACK;
             tileState oppColor = !whiteTurn ? tileState.WHITE : tileState.BLACK;
-            int[,] weights = new int[,]{
-                { 20, -3, 11, 08, 08, 11, -3, 20 },
-                { -3, -7, -4, 01, 01, -4, -7, -3 },
-                { 11, -4, 02, 02, 02, 02, -4, 11 },
-                { 08, 01, 02, -3, -3, 02, 01, 08 },
-                { 08, 01, 02, -3, -3, 02, 01, 08 },
-                { 11, -4, 02, 02, 02, 02, -4, 11 },
-                { -3, -7, -4, 01, 01, -4, -7, -3 },
-                { 20, -3, 11, 08, 08, 11, -3, 20 }
-            };
-            int[] X1 = { -1, -1, 0, 1, 1, 1, 0, -1 };
-            int[] Y1 = { 0, 1, 1, 1, 0, -1, -1, -1 };
-
 
             for (int i = 0; i < BOARDSIZE; i++)
             {
