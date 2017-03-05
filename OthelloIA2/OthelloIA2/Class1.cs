@@ -335,15 +335,8 @@
             if (depth == 0 || canMove.Count == 0)
                 return new Tuple<double, Tuple<int, int>>(eval(whiteTurn), new Tuple<int, int>(-1, -1));
 
-            double optVal;
-            if (whiteTurn) {
-                optVal = minOrMax * (-10000000);
-            }
-            else
-            {
-                optVal = minOrMax * (10000000);
-            }
-
+            double optVal = minOrMax * (-10000000);
+            
             Tuple<int, int> optOp = null;
 
             List<Tuple<int, int>> moves = canMove.ToList();
@@ -353,33 +346,19 @@
 
                 newBoard.PlayMove(op.Item1, op.Item2, whiteTurn);
                 Tuple<double, Tuple<int, int>> result = newBoard.alphabeta(newBoard.GetBoard(), depth - 1, -minOrMax, optVal, whiteTurn);
-                if(whiteTurn)
-                {                                  
-                    if (result.Item1 * minOrMax > optVal * minOrMax)
-                    {
-                        optVal = result.Item1;
-                        optOp = op;
-
-                        if (optVal * minOrMax > parentValue * minOrMax)
-                        {
-                            break;
-                        }
-                    
-                    }
-                }else
+                                               
+                if (result.Item1 * minOrMax > optVal * minOrMax)
                 {
-                    if (result.Item1 * minOrMax < optVal * minOrMax)
+                    optVal = result.Item1;
+                    optOp = op;
+
+                    if (optVal * minOrMax > parentValue * minOrMax)
                     {
-                        optVal = result.Item1;
-                        optOp = op;
-
-                        if (optVal * minOrMax < parentValue * minOrMax)
-                        {
-                            break;
-                        }
-
+                        break;
                     }
+                    
                 }
+                
             }
             return new Tuple<double, Tuple<int, int>>(optVal, optOp);       
         }
