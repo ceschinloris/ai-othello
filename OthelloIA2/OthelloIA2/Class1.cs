@@ -27,20 +27,7 @@
         private Stopwatch watch1;
         private Stopwatch watch2;
 
-        //eval variables
-        // Piece difference, frontier disks and disk squares
-        double p;
-        double f;
-
-        int positionScore;
-        int myTiles;
-        int oppTiles;
-        int myFrontTiles;
-        int oppFrontTiles;
-
-        int x;
-        int y;
-
+        // board weight for eval function
         private static int[,] weights = new int[,]{
                 { 20, -3, 11, 08, 08, 11, -3, 20 },
                 { -3, -7, -4, 01, 01, -4, -7, -3 },
@@ -52,6 +39,7 @@
                 { 20, -3, 11, 08, 08, 11, -3, 20 }
             };
 
+        // arrays for moving in the eight directions.
         private static int[] X1 = { -1, -1, 0, 1, 1, 1, 0, -1 };
         private static int[] Y1 = { 0, 1, 1, 1, 0, -1, -1, -1 };
 
@@ -91,6 +79,10 @@
         /*
          * AI
         */
+        /// <summary>
+        /// Constructor with a non-empty board
+        /// </summary>
+        /// <param name="b">int 2d array representing the board</param>
         public OthelloBoard(int[,] b)
         {
             board = new tileState[BOARDSIZE, BOARDSIZE];
@@ -101,45 +93,47 @@
 
             watch1 = new Stopwatch();
             watch2 = new Stopwatch();
-            
-            for (int i = 0; i < BOARDSIZE; i++)
-            {
-                for (int j = 0; j < BOARDSIZE; j++)
-                {
-                    if(b[i,j] == -1)
-                    {
-                        board[i, j] = tileState.EMPTY;
-                    }
-                    else if(b[i,j] == 0)
-                    {
-                        board[i, j] = tileState.WHITE;
-                    }
-                    else if(b[i,j] == 1)
-                    {
-                        board[i, j] = tileState.BLACK;
-                    }
-                }
-            }
+
+            setBoard(b);
         }
 
+        /// <summary>
+        /// Evaluation function
+        /// based on https://kartikkukreja.wordpress.com/2013/03/30/heuristic-function-for-reversiothello/
+        /// the blog used this paper : http://courses.cs.washington.edu/courses/cse573/04au/Project/mini1/RUSSIA/Final_Paper.pdf
+        /// </summary>
+        /// <param name="whiteTurn">is white playing</param>
+        /// <returns>double score of the board</returns>
         private double eval(bool whiteTurn)
         {
-            p = 0;
-            f = 0;
+            int myTiles;
+            int oppTiles;
 
-            positionScore = 0;
-            myTiles = 0;
-            oppTiles = 0;
-            myFrontTiles = 0;
-            oppFrontTiles = 0;
 
             tileState myColor = whiteTurn ? tileState.WHITE : tileState.BLACK;
             tileState oppColor = !whiteTurn ? tileState.WHITE : tileState.BLACK;
+            
+            // -----------------------------------------------------
+            // Piece difference, frontier pieces and position values
+            // -----------------------------------------------------
+            double coinParity = 0;
+            double frontierDisk = 0;
+
+            int positionScore = 0;
+            int myFrontTiles = 0;
+            int oppFrontTiles = 0;
+
+            int x;
+            int y;
+            
+            myTiles = 0;
+            oppTiles = 0;
 
             for (int i = 0; i < BOARDSIZE; i++)
             {
                 for (int j = 0; j < BOARDSIZE; j++)
                 {
+                    // piece number and position value
                     if (board[i, j] == myColor)
                     {
                         myTiles++;
@@ -151,6 +145,7 @@
                         positionScore -= weights[i, j];
                     }
 
+                    // frontier pieces
                     if(board[i,j] != tileState.EMPTY)
                     {
                         for(int k = 0; k < 8; k++)
@@ -170,25 +165,30 @@
                 }
             }
 
+            // Final values for coinParity and frontierDisk
             if (myTiles > oppTiles)
-                p = (100.0 * myTiles) / (myTiles + oppTiles);
+                coinParity = (100.0 * myTiles) / (myTiles + oppTiles);
             else if (myTiles < oppTiles)
-                p = -(100.0 * oppTiles) / (myTiles + oppTiles);
+                coinParity = -(100.0 * oppTiles) / (myTiles + oppTiles);
             else
-                p = 0;
+                coinParity = 0;
 
             if (myFrontTiles > oppFrontTiles)
-                f = -(100.0 * myFrontTiles) / (myFrontTiles + oppFrontTiles);
+                frontierDisk = -(100.0 * myFrontTiles) / (myFrontTiles + oppFrontTiles);
             else if (myFrontTiles < oppFrontTiles)
-                f = (100.0 * oppFrontTiles) / (myFrontTiles + oppFrontTiles);
+                frontierDisk = (100.0 * oppFrontTiles) / (myFrontTiles + oppFrontTiles);
             else
-                f = 0;
+                frontierDisk = 0;
 
+            // ----------------
             // Corner occupancy
-            double c = 0;
+            // ----------------
+            double cornerOccupancy = 0;
 
             myTiles = 0;
             oppTiles = 0;
+
+            // check each corners
             if (board[0, 0] == myColor)
                 myTiles++;
             else if (board[0, 0] == oppColor)
@@ -206,14 +206,18 @@
             else if (board[7, 7] == oppColor)
                 oppTiles++;
 
-            c = 25 * (myTiles - oppTiles);
+            // final value for corner occupancy
+            cornerOccupancy = 25 * (myTiles - oppTiles);
 
+            // ----------------
             // Corner closeness
-            double l = 0;
+            // ----------------
+            double cornerCloseness = 0;
 
             myTiles = 0;
             oppTiles = 0;
 
+            // count the number of pieces close to each corner if corner is empty (to see if you give the opponent the corner)
             if (board[0, 0] == tileState.EMPTY)
             {
                 if (board[0, 1] == myColor)
@@ -285,10 +289,12 @@
                 else if (board[7, 6] == oppColor)
                     oppTiles++;
             }
-            l = -12.5 * (myTiles - oppTiles);
+            cornerCloseness = -12.5 * (myTiles - oppTiles);
 
+            // --------
             // Mobility
-            double m = 0;
+            // --------
+            double mobility = 0;
 
             possibleMoves(whiteTurn);
             myTiles = canMove.Count;
@@ -296,17 +302,28 @@
             oppTiles = canMove.Count;
 
             if (myTiles > oppTiles)
-                m = (100.0 * myTiles) / (myTiles + oppTiles);
+                mobility = (100.0 * myTiles) / (myTiles + oppTiles);
             else if (myTiles < oppTiles)
-                m = -(100.0 * oppTiles) / (myTiles + oppTiles);
+                mobility = -(100.0 * oppTiles) / (myTiles + oppTiles);
             else
-                m = 0;
+                mobility = 0;
 
 
-            //Result
-            return (10 * p) + (801.724 * c) + (382.026 * l) + (78.922 * m) + (74.396 * f) + (10 * positionScore);
+            // -----------
+            // Final score
+            // -----------
+            return (10 * coinParity) + (801.724 * cornerOccupancy) + (382.026 * cornerCloseness) + (78.922 * mobility) + (74.396 * frontierDisk) + (10 * positionScore);
         }
 
+        /// <summary>
+        /// Alphabeta search function
+        /// </summary>
+        /// <param name="root">board state</param>
+        /// <param name="depth">depth of the search</param>
+        /// <param name="minOrMax">1 = maximize / -1 = minimize </param>
+        /// <param name="parentValue">parent score</param>
+        /// <param name="whiteTurn">is white playing ?</param>
+        /// <returns>value of board and tuple containing the best move to play</returns>
         private Tuple<double, Tuple<int, int>> alphabeta(int[,] root , int depth , int minOrMax , double parentValue, bool whiteTurn)
         {
             // minOrMax = 1 : maximize
