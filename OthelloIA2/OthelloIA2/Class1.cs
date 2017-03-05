@@ -100,7 +100,27 @@
         /// <summary>
         /// Evaluation function
         /// based on https://kartikkukreja.wordpress.com/2013/03/30/heuristic-function-for-reversiothello/
-        /// the blog used this paper : http://courses.cs.washington.edu/courses/cse573/04au/Project/mini1/RUSSIA/Final_Paper.pdf
+        /// The evaluation uses pieces differences, frontier pieces, position of the pieces, corner occupancy, corner closeness and mobility
+        /// Pieces differences:
+        /// based on our score and opponent score
+        /// 
+        /// Frontier pieces:
+        /// The more frontier pieces (pieces wich have an empty neighbor) we have, those pieces have more chances to get taken by the opponent
+        /// Stability calculation is very heavy so this is a simple replacement to get a light approximation of stability 
+        /// 
+        /// Pieces position:
+        /// Positions of the pieces on the board. (To avoid giving strategical positions to opponent and take them if given)
+        /// 
+        /// Corner occupancy:
+        /// Corners are very strong positions. So the score of the board takes in count who has corners.
+        /// This could be put in the weight array but the corners scores would have to be way higher.
+        /// 
+        /// Corner closeness:
+        /// To avoid giving corners to opponent we check who has pieces in the direct neighborhood of corners.
+        /// 
+        /// Mobility:
+        /// Number of possible moves for us and the opponent so if we can make the opponent pass, the board have a better score
+        /// 
         /// </summary>
         /// <param name="whiteTurn">is white playing</param>
         /// <returns>double score of the board</returns>
