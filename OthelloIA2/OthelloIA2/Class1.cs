@@ -324,12 +324,11 @@
         /// <param name="parentValue">parent score</param>
         /// <param name="whiteTurn">is white playing ?</param>
         /// <returns>value of board and tuple containing the best move to play</returns>
-        private Tuple<double, Tuple<int, int>> alphabeta(int[,] root , int depth , int minOrMax , double parentValue, bool whiteTurn, bool amIWhite)
+        private Tuple<double, Tuple<int, int>> alphabeta(int depth , int minOrMax , double parentValue, bool whiteTurn, bool amIWhite)
         {
             // minOrMax = 1 : maximize
             // minOrMax = -1 : minimize
-
-            setBoard(root);
+            
             possibleMoves(whiteTurn);
 
             if (depth == 0 || canMove.Count == 0)
@@ -343,11 +342,11 @@
             foreach (Tuple<int,int> op in moves)
             {
                 // create new state
-                OthelloBoard newBoard = new OthelloBoard(root);
+                OthelloBoard newBoard = new OthelloBoard(GetBoard());
                 newBoard.PlayMove(op.Item1, op.Item2, whiteTurn);
 
                 //alphabeta on the new state with depth - 1
-                Tuple<double, Tuple<int, int>> result = newBoard.alphabeta(newBoard.GetBoard(), depth - 1, -minOrMax, optVal, !whiteTurn, amIWhite);
+                Tuple<double, Tuple<int, int>> result = newBoard.alphabeta(depth - 1, -minOrMax, optVal, !whiteTurn, amIWhite);
                                          
                 if (result.Item1 * minOrMax > optVal * minOrMax)
                 {
@@ -369,7 +368,7 @@
         {
             setBoard(game);
             double score = eval(whiteTurn);
-            Tuple<double, Tuple<int, int>> result = alphabeta(game, level, 1, score, whiteTurn, whiteTurn);
+            Tuple<double, Tuple<int, int>> result = alphabeta(level, 1, score, whiteTurn, whiteTurn);
             return result.Item2;
         }
 
