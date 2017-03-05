@@ -324,7 +324,7 @@
         /// <param name="parentValue">parent score</param>
         /// <param name="whiteTurn">is white playing ?</param>
         /// <returns>value of board and tuple containing the best move to play</returns>
-        private Tuple<double, Tuple<int, int>> alphabeta(int[,] root , int depth , int minOrMax , double parentValue, bool whiteTurn)
+        private Tuple<double, Tuple<int, int>> alphabeta(int[,] root , int depth , int minOrMax , double parentValue, bool whiteTurn, bool amIWhite)
         {
             // minOrMax = 1 : maximize
             // minOrMax = -1 : minimize
@@ -333,7 +333,7 @@
             possibleMoves(whiteTurn);
 
             if (depth == 0 || canMove.Count == 0)
-                return new Tuple<double, Tuple<int, int>>(eval(whiteTurn), new Tuple<int, int>(-1, -1));
+                return new Tuple<double, Tuple<int, int>>(eval(amIWhite), new Tuple<int, int>(-1, -1));
 
             double optVal = minOrMax * (-10000000);
             
@@ -342,11 +342,13 @@
             List<Tuple<int, int>> moves = canMove.ToList();
             foreach (Tuple<int,int> op in moves)
             {
+                // create new state
                 OthelloBoard newBoard = new OthelloBoard(root);
-
                 newBoard.PlayMove(op.Item1, op.Item2, whiteTurn);
-                Tuple<double, Tuple<int, int>> result = newBoard.alphabeta(newBoard.GetBoard(), depth - 1, -minOrMax, optVal, whiteTurn);
-                                               
+
+                //alphabeta on the new state with depth - 1
+                Tuple<double, Tuple<int, int>> result = newBoard.alphabeta(newBoard.GetBoard(), depth - 1, -minOrMax, optVal, !whiteTurn, amIWhite);
+                                         
                 if (result.Item1 * minOrMax > optVal * minOrMax)
                 {
                     optVal = result.Item1;
@@ -367,7 +369,7 @@
         {
             setBoard(game);
             double score = eval(whiteTurn);
-            Tuple<double, Tuple<int, int>> result = alphabeta(game, level, 1, score, whiteTurn);
+            Tuple<double, Tuple<int, int>> result = alphabeta(game, level, 1, score, whiteTurn, whiteTurn);
             return result.Item2;
         }
 
