@@ -82,7 +82,7 @@
         /// <summary>
         /// Constructor with a non-empty board
         /// </summary>
-        /// <param name="b">int 2d array representing the board</param>
+        /// <param name="b">2d int array representing the board</param>
         public OthelloBoard(int[,] b)
         {
             board = new tileState[BOARDSIZE, BOARDSIZE];
@@ -338,11 +338,11 @@
         /// <summary>
         /// Alphabeta search function
         /// </summary>
-        /// <param name="root">board state</param>
         /// <param name="depth">depth of the search</param>
         /// <param name="minOrMax">1 = maximize / -1 = minimize </param>
         /// <param name="parentValue">parent score</param>
         /// <param name="whiteTurn">is white playing ?</param>
+        /// <param name="amIWhite">optimize for white or black?</param>
         /// <returns>value of board and tuple containing the best move to play</returns>
         private Tuple<double, Tuple<int, int>> alphabeta(int depth , int minOrMax , double parentValue, bool whiteTurn, bool amIWhite)
         {
@@ -384,6 +384,13 @@
             return new Tuple<double, Tuple<int, int>>(optVal, optOp);       
         }
 
+        /// <summary>
+        /// get the move to play determined by AI
+        /// </summary>
+        /// <param name="game">board state</param>
+        /// <param name="level">depth of ai</param>
+        /// <param name="whiteTurn">are we white?</param>
+        /// <returns>the move to play</returns>
         public Tuple<int, int> GetNextMove(int[,] game, int level, bool whiteTurn)
         {
             setBoard(game);
