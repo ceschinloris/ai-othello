@@ -41,7 +41,7 @@
         int x;
         int y;
 
-        int[,] weights = new int[,]{
+        private static int[,] weights = new int[,]{
                 { 20, -3, 11, 08, 08, 11, -3, 20 },
                 { -3, -7, -4, 01, 01, -4, -7, -3 },
                 { 11, -4, 02, 02, 02, 02, -4, 11 },
@@ -52,8 +52,8 @@
                 { 20, -3, 11, 08, 08, 11, -3, 20 }
             };
 
-        int[] X1 = { -1, -1, 0, 1, 1, 1, 0, -1 };
-        int[] Y1 = { 0, 1, 1, 1, 0, -1, -1, -1 };
+        private static int[] X1 = { -1, -1, 0, 1, 1, 1, 0, -1 };
+        private static int[] Y1 = { 0, 1, 1, 1, 0, -1, -1, -1 };
 
         #region CONSTRUCTOR
         public OthelloBoard()
@@ -327,17 +327,19 @@
                 OthelloBoard newBoard = new OthelloBoard(root);
 
                 newBoard.PlayMove(op.Item1, op.Item2, whiteTurn);
-                Tuple<double, Tuple<int, int>> result = newBoard.alphabeta(newBoard.GetBoard(), depth - 1, -minOrMax, optVal, !whiteTurn);
+                Tuple<double, Tuple<int, int>> result = newBoard.alphabeta(newBoard.GetBoard(), depth - 1, -minOrMax, optVal, whiteTurn);
 
                 if (result.Item1 * minOrMax > optVal * minOrMax)
                 {
                     optVal = result.Item1;
                     optOp = op;
-
+                    /*
+                    
                     if (optVal * minOrMax > parentValue * minOrMax)
                     {
                         break;
                     }
+                    */
                 }
             }
             return new Tuple<double, Tuple<int, int>>(optVal, optOp);       
@@ -1103,62 +1105,4 @@
         }
     }
 
-
-    public class OthelloAI 
-    {
-
-        public string GetName()
-        {
-            return "Goldorak";
-        }
-
-        #region IPlayable interface
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public int GetWhiteScore()
-        {
-            return 32;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public int GetBlackScore()
-        {
-            return 32;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="column"></param>
-        /// <param name="line"></param>
-        /// <param name="isWhite"></param>
-        /// <returns></returns>
-        public bool PlayMove(int column, int line, bool isWhite)
-        {
-            return true;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="column"></param>
-        /// <param name="line"></param>
-        /// <param name="isWhite"></param>
-        /// <returns></returns>
-        public bool IsPlayable(int column, int line, bool isWhite)
-        {
-            return true;
-        }
-
-        public Tuple<int, int> GetNextMove(int[,] game, int level, bool isWhiteTurn)
-        {
-            return new Tuple<int, int>(-1, -1);
-        }
-
-        #endregion
-    }
 }
