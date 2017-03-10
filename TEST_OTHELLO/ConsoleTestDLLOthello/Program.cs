@@ -93,7 +93,7 @@ namespace ConsoleTestDLLOthello
                 }
                 if (player1 == null)
                     player1 = new OthelloIA2.OthelloBoard();
-                Type[] T2 = IAPlayers[1].GetTypes();        //or    GetType ("OthelloIA2.OthelloBoard");
+                Type[] T2 = IAPlayers[2].GetTypes();        //or    GetType ("OthelloIA2.OthelloBoard");
                 for (int i = 0; i < T2.Count(); i++)
                 {
                     if (T2[i].Name.Contains("Board"))       // the IA's class that implements IPlayable must have "Board" in its name. E.g OthelloBoard, TheBoard, MyBoard, ...
@@ -132,7 +132,7 @@ namespace ConsoleTestDLLOthello
             int passCount = 0;
             bool testPlayer1, testPlayer2;
             bool whitePlays = false;
-            IPlayable.IPlayable activePlayer = player1;     // player 1 begins playing black
+            IPlayable.IPlayable activePlayer = player2;     // player 1 begins playing black
 
             while (boardCompare(refBoard, board1) && boardCompare(refBoard, board2) && (passCount<2))
             {
